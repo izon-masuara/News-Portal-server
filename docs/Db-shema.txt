@@ -1,0 +1,7 @@
+Tables : 
+- Images on landing page
+- News
+- Event
+- User
+- Organizational Structure
+- Supporting Data (History,Scholarship and annual work programe)
