@@ -1,6 +1,16 @@
+const dotenv = require('dotenv')
 const app = require('../index')
 const port = process.env.PORT || 3001
+const connect = require('../db/config/config')
+dotenv.config()
 
-app.listen(port,_ => {
-    console.log(`port ruuning on http://localhost:${port}`)
-})
+connect()
+    .then(_ => {
+        console.log('success')
+        app.listen(port, _ => {
+            console.log(`port ruuning on http://localhost:${port}`)
+        })
+    })
+    .catch(e => {
+        console.log(e)
+    })
