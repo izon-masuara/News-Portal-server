@@ -1,35 +1,28 @@
-const { default: mongoose } = require("mongoose")
-const File = require('../db/model/files')
-const Chunk = require('../db/model/chunks')
+const {
+    File,Chunk,News
+} = require('../db/model')
 const getfiles = require('../helpers/getfiles')
 
 const getImages = async (req, res, next) => {
     try {
         const image = await File.find({})
-        if(image.length !== 0){
-            res.status(200).json(image)
-        }
+        res.status(200).json(image)
     } catch (err) {
         console.log(err)
     }
 }
 
-const getNews = (req, res, next) => {
-    res.status(200).json(['News'])
+const getNews = async(req, res, next) => {
+    try {
+        const news = await News.find({})
+        res.status(200).json(news)
+    } catch (err) {
+        
+    }
 }
 
 const getEvents = (req, res, next) => {
     res.status(200).json(['News'])
-}
-
-const getDeteailNews = (req, res, next) => {
-    const { id } = req.params
-    res.status(200).json({})
-}
-
-const getDetailEvents = (req, res, next) => {
-    const { id } = req.params
-    res.status(200).json({})
 }
 
 const postImage = async (req, res, next) => {
@@ -55,12 +48,34 @@ const viewImage = async(req,res,next) => {
     }
 }
 
+const createNews = async(req,res,next) => {
+    const { filename } = req.file
+    const { title,content } = req.body
+    const buf = Buffer.from(content,'utf-8')
+    const payload = {
+        title,
+        img : filename,
+        content : buf
+    }
+    try {
+        await News.create(payload)
+        res.status(200).json("Success Added News")
+    } catch (err) {
+        const message = err.errors.title.properties.message || 'Error'
+        await File.deleteOne({filename})
+        await Chunk.deleteOne({files_id:req.file.id})
+        next({
+            code : 404,
+            message
+        })
+    }
+}
+
 module.exports = {
     getImages,
     getNews,
     getEvents,
-    getDeteailNews,
-    getDetailEvents,
     postImage,
-    viewImage
+    viewImage,
+    createNews
 }

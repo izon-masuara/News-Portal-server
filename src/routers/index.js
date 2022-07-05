@@ -4,10 +4,9 @@ const {
     getImages,
     getNews,
     getEvents,
-    getDeteailNews,
-    getDetailEvents,
     postImage,
-    viewImage
+    viewImage,
+    createNews
 } = require('../controllers/index')
 const errors = require('../middlewares/errorhandlers')
 
@@ -16,10 +15,16 @@ route.get('/images',getImages)
 route.get('/image/:id',viewImage)
 route.get('/news',getNews)
 route.get('/events',getEvents)
-route.get('/news/:id',getDeteailNews)
-route.get('/event/:id',getDetailEvents)
 // Only admin user can access
 route.post('/images',upload.array('image'),postImage)
+route.post('/news',upload.single('image'),createNews)
+
+/**
+ * 
+ * ketioka post images sebaiknya buat model baru untuk images agar nnti mengakses fs yg smaa
+ * namun id dari model yang berbeda misal image id model news dan event akan berbeda
+ * 
+ */
 
 route.use(errors)
 

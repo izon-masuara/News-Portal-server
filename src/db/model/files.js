@@ -3,7 +3,7 @@ const { Schema } = mongoose
 
 const fileModel = new Schema({
     _id: {
-        type: mongoose.Schema.Types.ObjectId
+        type:  Schema.Types.ObjectId
     },
     length: {
         type: Number
