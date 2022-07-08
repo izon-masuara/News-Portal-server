@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const timeFromat = require('../../helpers/time')
 const { Schema } = mongoose
 
 const news = new Schema({
@@ -15,12 +16,12 @@ const news = new Schema({
         required: true
     },
     created_at: {
-        type: Date,
-        default: Date.now(),
+        type: String,
+        default: timeFromat(),
         required: true
     },
     updated_at : {
-        type : Date,
+        type : String,
         default : Date.now(),
         required: true
     }
