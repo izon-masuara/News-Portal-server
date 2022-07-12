@@ -9,7 +9,9 @@ const {
     createNews,
     createEvent,
     login,
-    register
+    register,
+    scholarship,
+    dataSupport
 } = require('../controllers/index')
 const errors = require('../middlewares/errorhandlers')
 
@@ -19,19 +21,17 @@ route.get('/image/:id',viewImage)
 route.get('/news',getNews)
 route.get('/events',getEvents)
 route.post('/login',login)
-// Only admin user can access
+
+// User with token can access
+route.get('/scholarship',scholarship)
+route.get('/data/support',dataSupport)
+
+// Only user admin can access
 route.post('/images',upload.array('image'),postImage)
 route.post('/news',upload.single('image'),createNews)
 route.post('/event',upload.single('image'),createEvent)
 route.post('/register',register)
-
-/**
- * 
- * ketika post images sebaiknya buat model baru untuk images agar nnti mengakses fs yg smaa
- * namun id dari model yang berbeda misal image id model news dan event akan berbeda
- * 
- */
-
+// All errors can handler here
 route.use(errors)
 
 module.exports = route
