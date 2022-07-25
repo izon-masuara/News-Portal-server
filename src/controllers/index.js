@@ -43,32 +43,49 @@ const viewImage = async (req, res, next) => {
   try {
     const found = await File.findById(id);
     const { filename } = found;
-    const image = getfiles(filename);
-    (await image).on("data", (data) => {
-      // const blob = new Blob([data],{type:'image'})
-      res.status(200).end(data);
+    const image = await getfiles(filename);
+    image.on("data", function (data) {
+      return res.status(200).write(data);
+    });
+    image.on("error", function (err) {
+      return res.status(404).send({ message: "Cannot read Image!" });
+    });
+    image.on("end", () => {
+      return res.end();
     });
   } catch (err) {
-    res.json(err);
+    console.log('eror')
   }
 };
 
 const createNews = async (req, res, next) => {
-  const { id } = req.file;
-  const { title, content } = req.body;
-  const buf = Buffer.from(content, "utf-8");
-  const payload = {
-    title,
-    img: id,
-    content: buf,
-  };
   try {
+    if (req.file === undefined) {
+      throw {
+        code: 400,
+        message: 'file is empty'
+      }
+    }
+    const { id, filename } = req.file;
+    const { title, content } = req.body;
+    if (content === undefined || title === undefined) {
+      await File.deleteOne({ filename });
+      await Chunk.deleteMany({ files_id: id });
+      throw {
+        code: 400,
+        message: "Title or content are empty"
+      }
+    }
+    const buf = Buffer.from(content, "utf-8");
+    const payload = {
+      title,
+      img: id,
+      content: buf,
+    };
     await News.create(payload);
     res.status(200).json("Success Added News");
   } catch (err) {
-    const message = err.errors.title.properties.message || "Error";
-    await File.deleteOne({ filename });
-    await Chunk.deleteOne({ files_id: req.file.id });
+    const message = err.message || err.errors.title.properties.message;
     next({
       code: 404,
       message,
@@ -134,7 +151,7 @@ const login = async (req, res, next) => {
           message: "Email or password are wrong",
         };
       } else {
-        res.status(200).json(generateToken(email));
+        res.status(200).json({ token: generateToken(email), role: findData.role });
       }
     }
   } catch (err) {
@@ -182,6 +199,51 @@ const dataSupport = (req, res, next) => {
   }
 }
 
+const destroyData = async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const found = await News.findById(id)
+    if (!found) {
+      throw {
+        code: 404,
+        message: 'Data not found'
+      }
+    }
+    const findImage = await File.findById(found.img)
+    await File.deleteOne({ filename: findImage.filename })
+    await Chunk.deleteMany({ files_id: found.img })
+    await News.deleteOne({ _id: id })
+    res.status(200).json('success deleted')
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const editData = async (req, res, next) => {
+  const id = req.params.id
+  const { title, content } = req.body
+  const buf = Buffer.from(content, "utf-8");
+  try {
+    const found = await News.findById(id)
+    if (!found) {
+      throw {
+        code: 404,
+        message: 'Data not found'
+      }
+    }
+    else {
+      const payload = {
+        title,
+        content: buf
+      }
+      await News.updateOne({ _id: id }, payload)
+      res.status(200).json('updated success')
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 module.exports = {
   getImages,
   getNews,
@@ -193,5 +255,7 @@ module.exports = {
   login,
   register,
   scholarship,
-  dataSupport
+  dataSupport,
+  destroyData,
+  editData
 };

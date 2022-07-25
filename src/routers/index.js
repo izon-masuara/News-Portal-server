@@ -11,7 +11,9 @@ const {
     login,
     register,
     scholarship,
-    dataSupport
+    dataSupport,
+    destroyData,
+    editData
 } = require('../controllers/index')
 const errors = require('../middlewares/errorhandlers')
 
@@ -31,6 +33,11 @@ route.post('/images',upload.array('image'),postImage)
 route.post('/news',upload.single('image'),createNews)
 route.post('/event',upload.single('image'),createEvent)
 route.post('/register',register)
+
+route.patch('/news/:id',editData)
+
+route.delete('/news/:id',destroyData)
+
 // All errors can handler here
 route.use(errors)
 
