@@ -4,6 +4,7 @@ const Chunk = require('./chunks')
 const Event = require('./events')
 const Images = require('./images')
 const Users = require('./users')
+const Structure = require('./structure')
 
 
 module.exports = {
@@ -12,5 +13,6 @@ module.exports = {
     Chunk,
     Event,
     Images,
-    Users
+    Users,
+    Structure
 }

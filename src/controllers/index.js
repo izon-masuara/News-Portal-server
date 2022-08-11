@@ -1,4 +1,4 @@
-const { File, Chunk, News, Event, Images, Users } = require("../db/model");
+const { File, Chunk, News, Event, Images, Users, Structure } = require("../db/model");
 const { hasingPass, comparePass } = require("../helpers/securePass");
 const getfiles = require("../helpers/getfiles");
 const { generateToken } = require("../helpers/jwt");
@@ -28,11 +28,13 @@ const getEvents = async (req, res, next) => {
   }
 };
 
+// POST
+
 const postImage = async (req, res, next) => {
-  const id = req.files.map((el) => el.id);
+  const { id } = req.file
   try {
-    const data = await Images.create({ files_id: id });
-    res.send(data);
+    const success = await Images.create({ files_id: id })
+    res.status(201).json('Success Add Image')
   } catch (error) {
     console.log(error, "<<<<");
   }
@@ -83,7 +85,7 @@ const createNews = async (req, res, next) => {
       content: buf,
     };
     await News.create(payload);
-    res.status(200).json("Success Added News");
+    res.status(201).json("Success Added News");
   } catch (err) {
     const message = err.message || err.errors.title.properties.message;
     next({
@@ -244,6 +246,123 @@ const editData = async (req, res, next) => {
   }
 }
 
+const destroyImage = async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const findImage = await Images.findOne({ files_id: id })
+    if (!findImage) {
+      throw {
+        code: 404,
+        message: "Image not found"
+      }
+    }
+    const imageId = findImage.files_id
+    await Images.deleteOne({ _id: findImage._id })
+    await File.findByIdAndDelete(imageId)
+    await Chunk.deleteMany({ files_id: imageId })
+    res.status(200).json("Success Deleted Image")
+  } catch (err) {
+    next(err)
+  }
+}
+
+const editEvent = async (req, res, next) => {
+  const id = req.params.id
+  const { title, time, content } = req.body
+  const buf = Buffer.from(content, "utf-8");
+  try {
+    const found = await Event.findById(id)
+    if (!found) {
+      throw {
+        code: 404,
+        message: 'Data not found'
+      }
+    }
+    else {
+      const payload = {
+        title,
+        time,
+        content: buf
+      }
+      await Event.updateOne({ _id: id }, payload)
+      res.status(200).json('updated success')
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const destroyEvent = async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const found = await Event.findById(id)
+    if (!found) {
+      throw {
+        code: 404,
+        message: 'Data not found'
+      }
+    } else {
+      await Event.deleteOne({ _id: id })
+      await File.findByIdAndDelete(found.img)
+      await Chunk.deleteMany({ files_id: found.img })
+      res.status(200).json('Success Deleted')
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
+const dataStructure = async (req, res, next) => {
+  try {
+    const data = await Structure.find({})
+    res.status(200).json(data)
+  } catch (err) {
+    next(err)
+  }
+}
+
+const createStructure = async (req, res, next) => {
+  try {
+    const {
+      field,
+      description,
+      content,
+    } = req.body
+    const { id } = req.file
+    const buf = Buffer.from(content,'utf-8')
+    const created = await Structure.create({
+      field,
+      description,
+      content : buf,
+      img: id
+    })
+    res.status(201).json(created)
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
+}
+
+const destroyStructure = async (req, res, next) => {
+  const {id} = req.params
+  try {
+    const found = await Structure.findById(id)
+    if(!found){
+      throw {
+        code : 404,
+        message : "Data not found"
+      }
+    }else {
+      await Structure.deleteOne({ _id: id })
+      await File.findByIdAndDelete(found.img)
+      await Chunk.deleteMany({ files_id: found.img })
+      res.status(200).json('Success delete data')
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
 module.exports = {
   getImages,
   getNews,
@@ -257,5 +376,11 @@ module.exports = {
   scholarship,
   dataSupport,
   destroyData,
-  editData
+  editData,
+  destroyImage,
+  editEvent,
+  destroyEvent,
+  dataStructure,
+  createStructure,
+  destroyStructure
 };

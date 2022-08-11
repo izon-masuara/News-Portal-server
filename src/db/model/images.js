@@ -7,7 +7,8 @@ const images = new Schema({
         default: Date.now
     },
     files_id: {
-        type: []
+        type: mongoose.Schema.Types.ObjectId,
+        required : true
     }
 })
 
