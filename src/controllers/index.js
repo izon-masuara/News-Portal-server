@@ -8,7 +8,10 @@ const getImages = async (req, res, next) => {
     const image = await Images.find({});
     res.status(200).json(image);
   } catch (err) {
-    console.log(err);
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 };
 
@@ -16,7 +19,12 @@ const getNews = async (req, res, next) => {
   try {
     const news = await News.find({});
     res.status(200).json(news);
-  } catch (err) { }
+  } catch (err) {
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
+  }
 };
 
 const getEvents = async (req, res, next) => {
@@ -24,7 +32,10 @@ const getEvents = async (req, res, next) => {
     const events = await Event.find({});
     res.status(200).json(events);
   } catch (err) {
-    console.log(err);
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 };
 
@@ -36,7 +47,10 @@ const postImage = async (req, res, next) => {
     const success = await Images.create({ files_id: id })
     res.status(201).json('Success Add Image')
   } catch (error) {
-    console.log(error, "<<<<");
+    next({
+      code: 400,
+      message: 'Bad Request'
+    })
   }
 };
 
@@ -56,7 +70,10 @@ const viewImage = async (req, res, next) => {
       return res.end();
     });
   } catch (err) {
-    console.log('eror')
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 };
 
@@ -189,7 +206,10 @@ const scholarship = async (req, res, next) => {
   try {
     res.status(200).json('scholarshoip')
   } catch (err) {
-    console.log(err)
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 }
 
@@ -197,7 +217,10 @@ const dataSupport = (req, res, next) => {
   try {
     res.status(200).json('data support')
   } catch (err) {
-    console.log(err)
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 }
 
@@ -217,7 +240,7 @@ const destroyData = async (req, res, next) => {
     await News.deleteOne({ _id: id })
     res.status(200).json('success deleted')
   } catch (err) {
-    console.log(err)
+    next(err)
   }
 }
 
@@ -242,7 +265,7 @@ const editData = async (req, res, next) => {
       res.status(200).json('updated success')
     }
   } catch (err) {
-    console.log(err)
+    next(err)
   }
 }
 
@@ -288,7 +311,7 @@ const editEvent = async (req, res, next) => {
       res.status(200).json('updated success')
     }
   } catch (err) {
-    console.log(err)
+    next(err)
   }
 }
 
@@ -317,7 +340,10 @@ const dataStructure = async (req, res, next) => {
     const data = await Structure.find({})
     res.status(200).json(data)
   } catch (err) {
-    next(err)
+    next({
+      code: 404,
+      message: 'Data not found'
+    })
   }
 }
 
@@ -329,30 +355,29 @@ const createStructure = async (req, res, next) => {
       content,
     } = req.body
     const { id } = req.file
-    const buf = Buffer.from(content,'utf-8')
+    const buf = Buffer.from(content, 'utf-8')
     const created = await Structure.create({
       field,
       description,
-      content : buf,
+      content: buf,
       img: id
     })
     res.status(201).json(created)
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
 
 const destroyStructure = async (req, res, next) => {
-  const {id} = req.params
+  const { id } = req.params
   try {
     const found = await Structure.findById(id)
-    if(!found){
+    if (!found) {
       throw {
-        code : 404,
-        message : "Data not found"
+        code: 404,
+        message: "Data not found"
       }
-    }else {
+    } else {
       await Structure.deleteOne({ _id: id })
       await File.findByIdAndDelete(found.img)
       await Chunk.deleteMany({ files_id: found.img })
