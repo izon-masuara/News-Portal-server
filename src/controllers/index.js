@@ -1,4 +1,4 @@
-const { File, Chunk, News, Event, Images, Users, Structure } = require("../db/model");
+const { File, Chunk, News, Event, Images, Users, Structure, Order,Comment } = require("../db/model");
 const { hasingPass, comparePass } = require("../helpers/securePass");
 const getfiles = require("../helpers/getfiles");
 const { generateToken } = require("../helpers/jwt");
@@ -388,6 +388,64 @@ const destroyStructure = async (req, res, next) => {
   }
 }
 
+const order = async (req, res, next) => {
+  const { name, nim, university } = req.body
+  try {
+    await Order.create({ name, nim, university })
+    res.status(201).json('Success Create Order')
+  } catch (err) {
+    next(err)
+  }
+
+}
+
+const editStatus = async (req, res, next) => {
+  const {id} = req.params
+  const {status} = req.body
+  try {
+    const found = await Order.findById(id)
+    if(!found){
+      throw {
+        code : 404,
+        message : 'Data not found'
+      }
+    }else{
+      await Order.updateOne({status:status})
+      res.status(200).json('Success Updated')
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
+const getOrder = async(req,res,next) => {
+  try {
+    const data = await Order.find()
+    res.status(200).json(data)
+  } catch (err) {
+    next(err)
+  }
+}
+
+const comment = async(req,res,next) => {
+  const { comment } = req.body
+  try {
+    await Comment.create({comment:comment})
+    res.status(2001).json('success created comment')
+  } catch (err) {
+    next(err)
+  }
+}
+
+const getComment = async(req,res,next) => {
+  try {
+    const comments = await Comment.find()
+    res.status(200).json(comments)
+  } catch (err) {
+    next(err)
+  }
+}
+
 module.exports = {
   getImages,
   getNews,
@@ -407,5 +465,10 @@ module.exports = {
   destroyEvent,
   dataStructure,
   createStructure,
-  destroyStructure
+  destroyStructure,
+  order,
+  editStatus,
+  getOrder,
+  comment,
+  getComment
 };

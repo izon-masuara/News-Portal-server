@@ -5,6 +5,8 @@ const Event = require('./events')
 const Images = require('./images')
 const Users = require('./users')
 const Structure = require('./structure')
+const Order = require('./order')
+const Comment = require('./comment')
 
 
 module.exports = {
@@ -14,5 +16,7 @@ module.exports = {
     Event,
     Images,
     Users,
-    Structure
+    Structure,
+    Order,
+    Comment
 }

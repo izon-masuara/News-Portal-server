@@ -19,7 +19,12 @@ const {
     destroyEvent,
     dataStructure,
     createStructure,
-    destroyStructure
+    destroyStructure,
+    order,
+    editStatus,
+    getOrder,
+    comment,
+    getComment
 } = require('../controllers/index')
 const errors = require('../middlewares/errorhandlers')
 
@@ -28,7 +33,11 @@ route.get('/images',getImages)
 route.get('/image/:id',viewImage)
 route.get('/news',getNews)
 route.get('/events',getEvents)
+route.get('/order',getOrder)
+route.get('/comments',getComment)
 route.post('/login',login)
+route.post('/order',order)
+route.post('/comment',comment)
 
 // User with token can access
 route.get('/scholarship',scholarship)
@@ -44,17 +53,21 @@ route.post('/data/structure',upload.single('image'),createStructure)
 
 route.patch('/news/:id',editData)
 route.patch('/event/:id',editEvent)
+route.patch('/status/:id',editStatus)
 
 route.delete('/news/:id',destroyData)
 route.delete('/image/:id',destroyImage)
 route.delete('/event/:id',destroyEvent)
 route.delete('/data/structure/:id',destroyStructure)
 
-// input comentar forbiden to ll user execpt sekertaris jendral
-// notification
-// color
-// order clothes and convert to exel
-//#3A67B0
+/**
+ * 
+ *  Register
+ *  order clothes and convert to exel
+ *  input comentar forbiden to ll user execpt sekertaris jendral
+ *  #3A67B0
+ * 
+ */
 
 // All errors can handler here
 route.use(errors)
