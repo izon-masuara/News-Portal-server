@@ -1,2 +1,2 @@
-# Perhimagi-server
-Perhimagi server using node js 
+# News_portal-server
+News portal server using node js 
